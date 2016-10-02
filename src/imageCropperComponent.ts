@@ -9,7 +9,6 @@ import {Exif} from "./exif";
       <input *ngIf="!settings.noFileInput" type="file" (change)="fileChangeListener($event)" >
       <canvas #cropcanvas
               (mousedown)="onMouseDown($event)"
-              (mouseup)="onMouseUp($event)"
               (mousemove)="onMouseMove($event)"
               (touchmove)="onTouchMove($event)"
               (touchend)="onTouchEnd($event)"
@@ -68,19 +67,29 @@ export class ImageCropperComponent extends Type {
     public onTouchEnd(event: TouchEvent): void {
         this.cropper.onTouchEnd(event);
         if (this.cropper.isImageSet()) {
-            this.image.image = this.cropper.getCroppedImage().src;
+            let bounds = this.cropper.getCropBounds();
+            let width = bounds.right - bounds.left;
+            let height = bounds.bottom - bounds.top;
+            this.image.image = this.cropper.getCroppedImage(width, height).src;
             this.onCrop.emit(this.cropper.getCropBounds());
         }
     }
 
     public onMouseDown(): void {
         this.cropper.onMouseDown();
+
+        document.addEventListener('mouseup', (event: any) => {
+           this.onMouseUp();
+        }, {once: true});
     }
 
     public onMouseUp(): void {
         if (this.cropper.isImageSet()) {
             this.cropper.onMouseUp();
-            this.image.image = this.cropper.getCroppedImage().src;
+            let bounds = this.cropper.getCropBounds();
+            let width = bounds.right - bounds.left;
+            let height = bounds.bottom - bounds.top;
+            this.image.image = this.cropper.getCroppedImage(width, height).src;
             this.onCrop.emit(this.cropper.getCropBounds());
         }
     }
@@ -121,7 +130,10 @@ export class ImageCropperComponent extends Type {
                 self.getOrientedImage(image, function (img: HTMLImageElement) {
                     self.cropper.setImage(img);
                     self.image.original = img;
-                    self.image.image = self.cropper.getCroppedImage().src;
+                    let bounds = self.cropper.getCropBounds();
+                    let width = bounds.right - bounds.left;
+                    let height = bounds.bottom - bounds.top;
+                    self.image.image = self.cropper.getCroppedImage(width, height).src;
                     self.onCrop.emit(self.cropper.getCropBounds());
                 });
             }

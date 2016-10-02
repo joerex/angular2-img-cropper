@@ -682,6 +682,13 @@ export class ImageCropper extends ImageCropperModel {
     // todo: Unused parameters?
     public getCroppedImage(fillWidth?: number, fillHeight?: number): HTMLImageElement {
         let bounds: Bounds = this.getBounds();
+
+        //this.cropCanvas.width = bounds.right - bounds.left;;
+        //this.cropCanvas.height = bounds.bottom - bounds.top;
+
+        this.cropCanvas.width = fillWidth;
+        this.cropCanvas.height = fillHeight;
+
         if (!this.srcImage) {
             throw "Source image not set.";
         }
